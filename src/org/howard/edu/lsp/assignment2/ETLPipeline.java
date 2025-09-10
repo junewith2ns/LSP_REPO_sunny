@@ -2,14 +2,54 @@ package org.howard.edu.lsp.assignment2;
 
 import java.io.*;
 import java.util.*;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 
 public class ETLPipeline {
 
     public static void main(String[] args) {
-        List<Product> products = extract("data/products.csv");
+    List<Product> products = extract("data/products.csv");
 
+    // uppercase
+    List<TransformedProduct> trows = transformUppercase(products);
+
+    // electronics discount
+    List<TransformedProduct> discounted = applyElectronicsDiscount(trows);
+
+    // Temporary: preview after discount
+    System.out.println("After discount (first few rows):");
+    for (int i = 0; i < Math.min(6, discounted.size()); i++) {
+        TransformedProduct r = discounted.get(i);
+        System.out.println(r.getProductId() + "," + r.getName() + "," + r.getPrice() + "," + r.getCategory());
+    }
+}
         // transform (uppercase names only for now)
         List<TransformedProduct> trows = transformUppercase(products);
+        
+        // Round to 2 decimals, HALF_UP
+private static double round2(double value) {
+    return new BigDecimal(value).setScale(2, RoundingMode.HALF_UP).doubleValue();
+}
+
+// Apply 10% discount if category == "Electronics". keep others unchanged. 
+public static List<TransformedProduct> applyElectronicsDiscount(List<TransformedProduct> rows) {
+    List<TransformedProduct> out = new ArrayList<>();
+    for (TransformedProduct r : rows) {
+        double price = r.getPrice();
+        if ("Electronics".equals(r.getCategory())) {
+            price = round2(price * 0.90);  // 10% off, then round HALF_UP
+        }
+        out.add(new TransformedProduct(
+            r.getProductId(),
+            r.getName(),     
+            price,
+            r.getCategory(), 
+            ""                // priceRange to be filled later
+        ));
+    }
+    return out;
+}
 
         // Temporary
         System.out.println("Transformed preview (first few rows):");
