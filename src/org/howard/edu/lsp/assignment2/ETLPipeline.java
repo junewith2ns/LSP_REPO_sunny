@@ -10,20 +10,23 @@ public class ETLPipeline {
     public static void main(String[] args) {
         List<Product> products = extract("data/products.csv");
 
-        // Uppercase names
+        // Uppercase
         List<TransformedProduct> trows = transformUppercase(products);
 
-        // 10% discount for Electronics (HALF_UP rounding)
+        // Discount
         List<TransformedProduct> discounted = applyElectronicsDiscount(trows);
 
-        // Recategorize Electronics > $500 as Premium Electronics
+        // Recategorize
         List<TransformedProduct> recategorized = recategorizePremium(discounted);
 
-        // Temporary preview
-        System.out.println("After recategorization (first few rows):");
-        for (int i = 0; i < Math.min(6, recategorized.size()); i++) {
-            TransformedProduct r = recategorized.get(i);
-            System.out.println(r.getProductId() + "," + r.getName() + "," + r.getPrice() + "," + r.getCategory());
+        // Assign price ranges
+        List<TransformedProduct> finalRows = assignPriceRange(recategorized);
+
+        // Preview after price range
+        System.out.println("Final transformed rows (first few):");
+        for (int i = 0; i < Math.min(6, finalRows.size()); i++) {
+            TransformedProduct r = finalRows.get(i);
+            System.out.println(r.toCsvRow());
         }
     }
 
@@ -75,12 +78,12 @@ public class ETLPipeline {
         return result;
     }
 
-    // Round to 2 decimals, HALF_UP.
+    // Round to 2 decimals, HALF_UP
     private static double round2(double value) {
         return new BigDecimal(value).setScale(2, RoundingMode.HALF_UP).doubleValue();
     }
 
-    // 10% discount for Electronics; others unchanged
+    // 10% discount for Electronics. Others unchanged
     public static List<TransformedProduct> applyElectronicsDiscount(List<TransformedProduct> rows) {
         List<TransformedProduct> out = new ArrayList<>();
         for (TransformedProduct r : rows) {
@@ -113,6 +116,34 @@ public class ETLPipeline {
                 r.getPrice(),
                 category,
                 ""   // priceRange later
+            ));
+        }
+        return out;
+    }
+
+    // Compute PriceRange from final price
+    public static List<TransformedProduct> assignPriceRange(List<TransformedProduct> rows) {
+        List<TransformedProduct> out = new ArrayList<>();
+        for (TransformedProduct r : rows) {
+            String priceRange;
+            double price = r.getPrice();
+
+            if (price <= 10.00) {
+                priceRange = "Low";
+            } else if (price <= 100.00) {
+                priceRange = "Medium";
+            } else if (price <= 500.00) {
+                priceRange = "High";
+            } else {
+                priceRange = "Premium";
+            }
+
+            out.add(new TransformedProduct(
+                r.getProductId(),
+                r.getName(),
+                price,
+                r.getCategory(),
+                priceRange
             ));
         }
         return out;
