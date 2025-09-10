@@ -7,32 +7,43 @@ import java.math.RoundingMode;
 
 public class ETLPipeline {
 
+    private static int skippedCount = 0;
+
     public static void main(String[] args) {
+        // Handle “missing input file” 
+        File in = new File("data/products.csv");
+        if (!in.exists()) {
+            System.out.println("Error: input file not found at data/products.csv");
+            return; 
+        }
+
+        // Extract
         List<Product> products = extract("data/products.csv");
+        int rowsRead = products.size(); // header excluded
 
-        // Uppercase
+        // Transform (uppercase → discount → recategorize → price range)
         List<TransformedProduct> trows = transformUppercase(products);
-
-        // Discount
         List<TransformedProduct> discounted = applyElectronicsDiscount(trows);
-
-        // Recategorize
         List<TransformedProduct> recategorized = recategorizePremium(discounted);
-
-        // Assign price ranges
         List<TransformedProduct> finalRows = assignPriceRange(recategorized);
 
-        // Preview after price range
-        System.out.println("Final transformed rows (first few):");
-        for (int i = 0; i < Math.min(6, finalRows.size()); i++) {
-            TransformedProduct r = finalRows.get(i);
-            System.out.println(r.toCsvRow());
-        }
+        // Load (always write header / write rows if any)
+        String outPath = "data/transformed_products.csv";
+        load(outPath, finalRows);
+
+        // Run summary
+        System.out.println("Run Summary:");
+        System.out.println(" - Rows read: " + rowsRead);
+        System.out.println(" - Rows transformed: " + finalRows.size());
+        System.out.println(" - Rows skipped: " + skippedCount);
+        System.out.println(" - Output: " + outPath);
     }
 
     // Extract: read products.csv
     public static List<Product> extract(String filePath) {
+        skippedCount = 0; // resets for each run
         List<Product> products = new ArrayList<>();
+
         File file = new File(filePath);
         if (!file.exists()) {
             System.out.println("Error: input file not found at " + filePath);
@@ -42,20 +53,21 @@ public class ETLPipeline {
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             String line = br.readLine(); // header
             if (line == null) {
-                System.out.println("Input file is empty.");
                 return products;
             }
             while ((line = br.readLine()) != null) {
-                if (line.trim().isEmpty()) continue;
+                if (line.trim().isEmpty()) { skippedCount++; continue; }
                 String[] parts = line.split(",");
-                if (parts.length < 4) continue;
-
-                int id = Integer.parseInt(parts[0].trim());
-                String name = parts[1].trim();
-                double price = Double.parseDouble(parts[2].trim());
-                String category = parts[3].trim();
-
-                products.add(new Product(id, name, price, category));
+                if (parts.length < 4) { skippedCount++; continue; }
+                try {
+                    int id = Integer.parseInt(parts[0].trim());
+                    String name = parts[1].trim();
+                    double price = Double.parseDouble(parts[2].trim());
+                    String category = parts[3].trim();
+                    products.add(new Product(id, name, price, category));
+                } catch (NumberFormatException nfe) {
+                    skippedCount++;
+                }
             }
         } catch (IOException e) {
             System.out.println("Error reading file: " + e.getMessage());
@@ -115,7 +127,7 @@ public class ETLPipeline {
                 r.getName(),
                 r.getPrice(),
                 category,
-                ""   // priceRange later
+                ""   // priceRange follows
             ));
         }
         return out;
@@ -147,5 +159,31 @@ public class ETLPipeline {
             ));
         }
         return out;
+    }
+
+    // Load: write header + transformed rows to data/transformed_products.csv
+    public static void load(String outputPath, List<TransformedProduct> rows) {
+        try {
+            // ensure parent folder exists
+            File outFile = new File(outputPath);
+            File parent = outFile.getParentFile();
+            if (parent != null && !parent.exists()) {
+                parent.mkdirs();
+            }
+
+            try (BufferedWriter bw = new BufferedWriter(new FileWriter(outFile))) {
+                // header
+                bw.write("ProductID,Name,Price,Category,PriceRange");
+                bw.newLine();
+
+                // rows (if any)
+                for (TransformedProduct r : rows) {
+                    bw.write(r.toCsvRow());
+                    bw.newLine();
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error writing output: " + e.getMessage());
+        }
     }
 }
