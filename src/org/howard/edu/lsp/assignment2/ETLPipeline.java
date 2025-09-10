@@ -5,60 +5,29 @@ import java.util.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-
 public class ETLPipeline {
 
     public static void main(String[] args) {
-    List<Product> products = extract("data/products.csv");
+        List<Product> products = extract("data/products.csv");
 
-    // uppercase
-    List<TransformedProduct> trows = transformUppercase(products);
-
-    // electronics discount
-    List<TransformedProduct> discounted = applyElectronicsDiscount(trows);
-
-    // Temporary: preview after discount
-    System.out.println("After discount (first few rows):");
-    for (int i = 0; i < Math.min(6, discounted.size()); i++) {
-        TransformedProduct r = discounted.get(i);
-        System.out.println(r.getProductId() + "," + r.getName() + "," + r.getPrice() + "," + r.getCategory());
-    }
-}
-        // transform (uppercase names only for now)
+        // Uppercase names
         List<TransformedProduct> trows = transformUppercase(products);
-        
-        // Round to 2 decimals, HALF_UP
-private static double round2(double value) {
-    return new BigDecimal(value).setScale(2, RoundingMode.HALF_UP).doubleValue();
-}
 
-// Apply 10% discount if category == "Electronics". keep others unchanged. 
-public static List<TransformedProduct> applyElectronicsDiscount(List<TransformedProduct> rows) {
-    List<TransformedProduct> out = new ArrayList<>();
-    for (TransformedProduct r : rows) {
-        double price = r.getPrice();
-        if ("Electronics".equals(r.getCategory())) {
-            price = round2(price * 0.90);  // 10% off, then round HALF_UP
-        }
-        out.add(new TransformedProduct(
-            r.getProductId(),
-            r.getName(),     
-            price,
-            r.getCategory(), 
-            ""                // priceRange to be filled later
-        ));
-    }
-    return out;
-}
+        // 10% discount for Electronics (HALF_UP rounding)
+        List<TransformedProduct> discounted = applyElectronicsDiscount(trows);
 
-        // Temporary
-        System.out.println("Transformed preview (first few rows):");
-        for (int i = 0; i < Math.min(5, trows.size()); i++) {
-            TransformedProduct r = trows.get(i);
+        // Recategorize Electronics > $500 as Premium Electronics
+        List<TransformedProduct> recategorized = recategorizePremium(discounted);
+
+        // Temporary preview
+        System.out.println("After recategorization (first few rows):");
+        for (int i = 0; i < Math.min(6, recategorized.size()); i++) {
+            TransformedProduct r = recategorized.get(i);
             System.out.println(r.getProductId() + "," + r.getName() + "," + r.getPrice() + "," + r.getCategory());
         }
     }
 
+    // Extract: read products.csv
     public static List<Product> extract(String filePath) {
         List<Product> products = new ArrayList<>();
         File file = new File(filePath);
@@ -77,10 +46,12 @@ public static List<TransformedProduct> applyElectronicsDiscount(List<Transformed
                 if (line.trim().isEmpty()) continue;
                 String[] parts = line.split(",");
                 if (parts.length < 4) continue;
+
                 int id = Integer.parseInt(parts[0].trim());
                 String name = parts[1].trim();
                 double price = Double.parseDouble(parts[2].trim());
                 String category = parts[3].trim();
+
                 products.add(new Product(id, name, price, category));
             }
         } catch (IOException e) {
@@ -89,19 +60,61 @@ public static List<TransformedProduct> applyElectronicsDiscount(List<Transformed
         return products;
     }
 
-    /** ONLY uppercase names; keep price/category unchanged; priceRange blank for now. */
+    // ONLY uppercase names
     public static List<TransformedProduct> transformUppercase(List<Product> products) {
         List<TransformedProduct> result = new ArrayList<>();
         for (Product p : products) {
-            String upperName = p.getName().toUpperCase();
             result.add(new TransformedProduct(
                 p.getProductId(),
-                upperName,
+                p.getName().toUpperCase(),
                 p.getPrice(),
                 p.getCategory(),
-                "" // to be filled
+                ""   // to be filled later
             ));
         }
         return result;
+    }
+
+    // Round to 2 decimals, HALF_UP.
+    private static double round2(double value) {
+        return new BigDecimal(value).setScale(2, RoundingMode.HALF_UP).doubleValue();
+    }
+
+    // 10% discount for Electronics; others unchanged
+    public static List<TransformedProduct> applyElectronicsDiscount(List<TransformedProduct> rows) {
+        List<TransformedProduct> out = new ArrayList<>();
+        for (TransformedProduct r : rows) {
+            double price = r.getPrice();
+            if ("Electronics".equals(r.getCategory())) {
+                price = round2(price * 0.90);
+            }
+            out.add(new TransformedProduct(
+                r.getProductId(),
+                r.getName(),
+                price,
+                r.getCategory(),
+                ""   // priceRange later
+            ));
+        }
+        return out;
+    }
+
+    // Recategorize Electronics over $500 as Premium Electronics
+    public static List<TransformedProduct> recategorizePremium(List<TransformedProduct> rows) {
+        List<TransformedProduct> out = new ArrayList<>();
+        for (TransformedProduct r : rows) {
+            String category = r.getCategory();
+            if ("Electronics".equals(category) && r.getPrice() > 500.0) {
+                category = "Premium Electronics";
+            }
+            out.add(new TransformedProduct(
+                r.getProductId(),
+                r.getName(),
+                r.getPrice(),
+                category,
+                ""   // priceRange later
+            ));
+        }
+        return out;
     }
 }
