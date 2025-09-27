@@ -3,6 +3,15 @@ package org.howard.edu.lsp.assignment3;
 import java.io.File;
 import java.util.List;
 
+/**
+ * ETLPipeline oversees the Extract, Transform, and Load process.
+ * <p>
+ * Steps:
+ * 1. Extract products from data/products.csv
+ * 2. Transform (uppercase names, apply discount, recategorize, assign price range)
+ * 3. Load results into data/transformed_products.csv
+ * </p>
+ */
 public class ETLPipeline {
     public static void main(String[] args) {
         final String INPUT  = "data/products.csv";
