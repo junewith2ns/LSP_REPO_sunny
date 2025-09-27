@@ -4,11 +4,19 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-// CSVExtractor reads products from data/products.csv and returns a list of raw {@link Product}s
+/**
+ * CSVExtractor reads products from data/products.csv
+ * and returns a list of raw {@link Product} objects.
+ */
 public class CSVExtractor {
     private int skippedCount = 0;
 
-    // Extracts rows from a CSV file into {@link Product} objects
+    /**
+     * Extracts rows from a CSV file into {@link Product} objects.
+     *
+     * @param filePath path to the input CSV file
+     * @return list of Product objects read from the file
+     */
     public List<Product> extract(String filePath) {
         skippedCount = 0;
         List<Product> products = new ArrayList<>();
@@ -44,9 +52,12 @@ public class CSVExtractor {
         return products;
     }
 
-    // return number of lines skipped during the last extract call.
+    /**
+     * Returns the number of lines skipped during the last extract call.
+     *
+     * @return number of skipped lines
+     */
     public int getSkippedCount() {
         return skippedCount;
     }
 }
-
