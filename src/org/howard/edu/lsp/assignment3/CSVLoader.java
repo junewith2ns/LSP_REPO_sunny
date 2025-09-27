@@ -6,8 +6,18 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * CSVLoader writes transformed product data into a CSV file.
+ */
 public class CSVLoader {
 
+    /**
+     * Writes the transformed rows to the specified output CSV file.
+     * Always includes a header row, followed by each product row.
+     *
+     * @param outputPath the path where the CSV file will be created
+     * @param rows list of transformed product rows to write
+     */
     public void load(String outputPath, List<TransformedProduct> rows) {
         try {
             File outFile = new File(outputPath);
