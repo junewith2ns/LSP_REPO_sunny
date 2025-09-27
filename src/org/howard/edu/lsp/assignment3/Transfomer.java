@@ -5,8 +5,24 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Transformer applies all transformation rules to a list of Products.
+ * <p>
+ * Rules:
+ * 1. Convert name to uppercase.
+ * 2. Apply 10% discount if category = "Electronics" (round to 2 decimals, HALF_UP).
+ * 3. If discounted price > 500 and category was "Electronics", set category to "Premium Electronics".
+ * 4. Assign price range (Low, Medium, High, Premium).
+ * </p>
+ */
 public class Transformer {
 
+    /**
+     * Run all transformations on a list of raw {@link Product} objects.
+     *
+     * @param products list of input products
+     * @return list of transformed products with updated fields
+     */
     public List<TransformedProduct> runAll(List<Product> products) {
         List<TransformedProduct> transformed = new ArrayList<>();
 
@@ -45,7 +61,12 @@ public class Transformer {
         return transformed;
     }
 
-    // round to 2 decimals, HALF_UP
+    /**
+     * Round a double to 2 decimals using HALF_UP.
+     *
+     * @param value number to round
+     * @return rounded value
+     */
     private double round2(double value) {
         return new BigDecimal(value).setScale(2, RoundingMode.HALF_UP).doubleValue();
     }
