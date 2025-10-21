@@ -1,0 +1,32 @@
+Please clarify if my github paths attached in the screenshot follow the rubric
+
+ChatGPT said:
+Yes ✅ — your GitHub path structure follows the rubric correctly for the midterm setup.
+Here’s how it lines up with the exam instructions shown in your screenshots:
+
+🗂 Required Package Structure (from rubric)
+Each programming problem must be uploaded under the package:
+org.howard.edu.lsp.midterm.question2
+📁 Your Current File Path
+src/org/howard/edu/lsp/midterm/question2/
+    ├── AreaCalculator.java
+    └── Main.java
+✅ Verification
+Requirement	Your Setup	Status
+Package name exactly matches org.howard.edu.lsp.midterm.question2	✅ Matches	✅ Correct
+Files are correctly placed under that package	AreaCalculator.java & Main.java inside midterm/question2	✅ Correct
+File names are appropriate (AreaCalculator for the main logic, Main for testing)	✅ Matches problem statement	✅ Correct
+Will compile with correct package declaration (package org.howard.edu.lsp.midterm.question2;)	✅ Yes, assuming both files start with that line	✅ Correct
+⚠️ Just Make Sure
+Both files begin with this line at the very top:
+package org.howard.edu.lsp.midterm.question2;
+You commit and push from the root of your project (so the folder structure remains intact).
+Your GitHub repo should reflect that full nested path — not a shortcut or flattened structure.
+✅ Conclusion:
+Your folder and file placement perfectly follow the rubric and will meet the grading requirement.
+
+
+
+
+
+ChatGPT can make mistakes. Check important info.
