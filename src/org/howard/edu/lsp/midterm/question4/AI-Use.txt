@@ -1,0 +1,26 @@
+Awesome, thanks for the full screenshots. Here’s the whole thing boiled down, then a clean step-by-step you can follow to the letter.
+Q4 — Summary (what the assignment wants)
+You’re building a smart-campus device system that shows:
+Class inheritance: concrete devices extend an abstract base Device.
+Interface implementation: devices implement capability interfaces.
+Device (given) is abstract. You must not modify it. It has id, location, heartbeat timestamp, connection flag, heartbeat(), and abstract getStatus().
+Define capability interfaces:
+Networked: connect(), disconnect(), isConnected()
+Behavior: connect() → connected=true; disconnect() → connected=false; isConnected() reports.
+BatteryPowered: getBatteryPercent(), setBatteryPercent(int)
+Behavior: returns/updates battery; throw IllegalArgumentException if outside 0..100.
+Implement 3 concrete devices (all fields private, use super(id, location)):
+DoorLock — extends Device, implements Networked, BatteryPowered
+Field: int batteryPercent
+Constructor validates/sets battery via setBatteryPercent(initialBattery)
+Implement interface methods and getStatus() with exact formatting.
+Thermostat — extends Device, implements Networked
+Field: double temperatureC
+Constructor sets temperatureC; add getters/setters; implement Networked + getStatus().
+Camera — extends Device, implements Networked, BatteryPowered
+Same battery rules as DoorLock; implement Networked + getStatus().
+A provided Main (do not change) will:
+Test invalid battery (expect exception),
+Show heartbeat timestamps before/after calling heartbeat(),
+Demonstrate polymorphism (base class and interface),
+Print final status strings.
