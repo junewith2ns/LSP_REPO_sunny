@@ -5,17 +5,17 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * A mutable mathematical set of integers backed by an {@link ArrayList}.
+ * Class that reps a set of integers.
  * <p>
- * This class disallows duplicates and supports common set operations.
- * All mutator methods modify the current instance (i.e., {@code this}).
+ * Uses an ArrayList internally but makes sure no duplicate values exist.
+ * All methods that modify the set (eg add, union, etc.) change the current object.
  */
 public class IntegerSet  {
-  /** Internal storage; duplicates are prevented by method logic. */
+  /** Stores all the integers in the set. Duplicates are not allowed. */
   private List<Integer> set = new ArrayList<Integer>();
 
   /**
-   * Clears the internal representation of the set.
+   * Removes every element from the set so its empty.
    */
   public void clear() {
     set.clear();
@@ -32,9 +32,9 @@ public class IntegerSet  {
   /**
    * Returns true if the two sets are equal, false otherwise.
    * Two sets are equal if they contain all of the same values in any order.
-   * This overrides the equals method from the Object class.
+   * Overrides the equals method from the Object class.
    * @param o another object to compare
-   * @return {@code true} when the contents match irrespective of order
+   *  @return true if both sets have the same values; false otherwise
    */
   @Override
   public boolean equals(Object o) {
@@ -47,17 +47,17 @@ public class IntegerSet  {
   }
 
   /**
-   * Returns true if the set contains the given value.
-   * @param value integer to check membership of
-   * @return membership result
+   * Checks if a specific number exists in the set.
+   * @param value the number to look for
+   * @return true if found, false if not
    */
   public boolean contains(int value) {
     return set.contains(value);
   }
 
   /**
-   * Returns the largest item in the set.
-   * @return maximum element
+   * Returns largest number in the set.
+   * @return largest integer in the set
    * @throws IllegalStateException if the set is empty
    */
   public int largest()  {
@@ -68,8 +68,8 @@ public class IntegerSet  {
   }
 
   /**
-   * Returns the smallest item in the set.
-   * @return minimum element
+   * Returns smallest number in the set.
+   * @return smallest integer in the set
    * @throws IllegalStateException if the set is empty
    */
   public int smallest()  {
@@ -150,10 +150,9 @@ public class IntegerSet  {
   }
 
   /**
-   * Returns a formatted string representation of the set.
-   * Format: elements in square brackets, e.g., {@code [1, 2, 3]}.
-   * Note: order is the internal iteration order of the backing list.
-   * @return string form of the set
+   * Returns a string showing all elements in the set.
+   * Example: [1, 2, 3]
+   * The order matches how the elements are stored internally.
    */
   @Override
   public String toString() {
