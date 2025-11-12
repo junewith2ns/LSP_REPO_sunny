@@ -103,6 +103,9 @@ public class IntegerSet  {
    * @param other the other set (non-null)
    */
   public void union(IntegerSet other) {
+    // REQUIRED FIX: handle union with self safely
+    if (other == this) return;
+
     for (Integer v : other.set) {
       if (!this.set.contains(v)) {
         this.set.add(v);
