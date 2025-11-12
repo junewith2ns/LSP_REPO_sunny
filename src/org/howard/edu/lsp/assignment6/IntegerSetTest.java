@@ -96,6 +96,13 @@ public class IntegerSetTest {
   }
 
   @Test
+  public void testUnionWithSelfNoCrash() {
+    IntegerSet a = make(1, 2, 3);
+    a.union(a); // should be a no-op and not throw
+    assertTrue(a.equals(make(1, 2, 3)));
+  }
+
+  @Test
   public void testIntersectTypicalAndWithSelf() {
     IntegerSet a = make(1, 2, 3);
     IntegerSet b = make(2, 3, 4);
