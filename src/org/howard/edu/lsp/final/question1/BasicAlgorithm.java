@@ -2,19 +2,16 @@ package org.howard.edu.lsp.finale.question1;
 
 import java.util.Random;
 
-/**
- * Digits-only generator using java.util.Random.
- */
+/** Digits-only generator using java.util.Random. */
 class BasicAlgorithm implements PasswordAlgorithm {
-    private static final String DIGITS = "0123456789";
-    private final Random r = new Random();
-
-    @Override
     public String generate(int length) {
-        StringBuilder sb = new StringBuilder(length);
+        String digits = "0123456789";
+        Random r = new Random();
+        String result = "";
         for (int i = 0; i < length; i++) {
-            sb.append(DIGITS.charAt(r.nextInt(DIGITS.length())));
+            int index = r.nextInt(digits.length());
+            result += digits.charAt(index);   // naive concat
         }
-        return sb.toString();
+        return result;
     }
 }
