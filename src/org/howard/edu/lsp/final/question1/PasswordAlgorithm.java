@@ -1,3 +1,5 @@
+package org.howard.edu.lsp.finale.question1;
+
 /**
  * Strategy for generating passwords.
  * Implementations define how characters are chosen; the service
